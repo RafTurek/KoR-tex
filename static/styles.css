@@ -1,0 +1,762 @@
+/* Basic reset for margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Main container styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Set a nice font */
+    background-color: #e8e8e0; /* Light cream background for day mode */
+    color: #333; /* Dark text color */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+    min-height: 100vh;
+    overflow-x: hidden;  /* Ukryj poziomy scrollbar */
+}
+
+#element-tags{
+    font-size: 10px;
+    
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    padding: 10px;
+    gap: 10px;
+}
+
+.container_left {
+    position: relative;
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100vh - 20px); /* Wysokość viewportu minus padding kontenera */
+}
+
+/* AI chat container styling */
+.ai-chat-container {
+    flex: 1;
+    background-color: #d8d3c5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* container for settings under AI chat */
+.container_settings {
+    background-color: #d8d3c5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    height: 200px; /* Stała wysokość dla kontenera ustawień */
+}
+
+/* Main content area styling */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100vh - 20px); /* Wysokość viewportu minus padding kontenera */
+}
+
+/* Add element container styling */
+.add-element-container {
+    display: flex;
+    gap: 10px;
+    background-color: #d8d3c5;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    min-height: 250px;
+    max-height: 250px;
+}
+
+.add-element-container_options {
+    width: 300px;
+    min-width: 300px;
+    background-color: #d8d3c5;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.add-element-container_settings {
+    width: 400px;
+    min-width: 400px;
+    background-color: #d8d3c5;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.add-element-container_textarea {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    background-color: #d8d3c5;
+    border-radius: 10px;
+    padding: 10px;
+    min-width: 0;  /* Pozwól na zmniejszanie */
+}
+
+.main-task-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#subtasks-container {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 24px;
+}
+
+#add-element-textarea {
+    flex: 1;
+    resize: none;
+    min-height: 180px;
+    margin-top: 0;
+}
+
+#subtasks-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    max-height: 140px;
+}
+
+.subtask-input-container {
+    margin-bottom: 5px;
+}
+
+.subtask-input-container input {
+    padding: 6px;
+    font-size: 13px;
+}
+
+#subtasks-list li {
+    padding: 6px;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+#add-element-input {
+    width: 200px; /* Full width */
+    padding: 10px; /* Padding for input */
+    border: 1px solid #6f6f6e; /* Border for input */
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 10px; /* Space below input */
+    background-color: #e8e8e0;
+}
+
+.input-field {
+    width: 100%; /* Full width */
+    padding: 6px;
+    border: 1px solid #6f6f6e; /* Border for input */
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 5px; /* Space below input */
+    background-color: #e8e8e0;
+    font-size: 13px;
+}
+
+/* Button styling */
+.action-button {
+    background-color: #bfad96; /* Green background */
+    color: white; /* White text */
+    border: 1px solid #6f6f6e; /* No border */
+    padding: 6px 12px; /* Mniejszy padding dla przycisków */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+    margin: 1px; /* Mniejszy margines */
+    font-size: 14px; /* Mniejsza czcionka */
+}
+
+.action-button:hover {
+    background-color: #b59b7a; /* Darker green on hover */
+}
+
+/* Bottom container styling */
+.bottom-container {
+    display: flex;
+    gap: 10px;
+    flex: 1; /* Zajmij pozostałą przestrzeń */
+    min-height: 200px;
+    height: calc(100vh - 290px); /* Wysokość viewportu minus górne elementy i padding */
+}
+
+/* Tasks and notes container styling */
+.tasks-container, .notes-container {
+    flex: 1;
+    background-color: #d8d3c5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Pełna wysokość rodzica */
+    overflow: hidden;
+}
+
+/* Container header */
+.container-header {
+    flex-shrink: 0; /* Zapobiega zmniejszaniu nagłówka */
+    margin-bottom: 10px;
+}
+
+/* Lists styling */
+.tasks-list, .notes-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    margin-right: -10px;
+}
+
+/* Scrollbar styling */
+.tasks-list::-webkit-scrollbar,
+.notes-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tasks-list::-webkit-scrollbar-track,
+.notes-list::-webkit-scrollbar-track {
+    background: #d8d3c5;
+    border-radius: 4px;
+}
+
+.tasks-list::-webkit-scrollbar-thumb,
+.notes-list::-webkit-scrollbar-thumb {
+    background: #bfad96;
+    border-radius: 4px;
+}
+
+.tasks-list::-webkit-scrollbar-thumb:hover,
+.notes-list::-webkit-scrollbar-thumb:hover {
+    background: #a69780;
+}
+
+/* Dark mode scrollbar */
+body.dark-mode .tasks-list::-webkit-scrollbar-track,
+body.dark-mode .notes-list::-webkit-scrollbar-track {
+    background: #4a4a4a;
+}
+
+body.dark-mode .tasks-list::-webkit-scrollbar-thumb,
+body.dark-mode .notes-list::-webkit-scrollbar-thumb {
+    background: #666;
+}
+
+body.dark-mode .tasks-list::-webkit-scrollbar-thumb:hover,
+body.dark-mode .notes-list::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Specific background colors for tasks and notes */
+.tasks-container {
+    background-color: #d8d3c5; /* Light green background */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+}
+
+.notes-container {
+    background-color: #d8d3c5; /* Light red background */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+    
+}
+
+/* Dark theme styles */
+body.dark-mode {
+    background-color: #595858; /* Dark background for night mode */
+    color: #f9f9f9; /* Light text color */
+}
+
+body.dark-mode .ai-chat-container {
+    background-color: #4a4a4a; /* Darker background for AI chat */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+}
+
+body.dark-mode .add-element-container {
+    background-color: #4a4a4a; /* Darker background for add element */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+}
+
+body.dark-mode .tasks-container {
+    background-color: #4a4a4a; /* Darker green for tasks */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+}
+
+body.dark-mode .notes-container {
+    background-color: #4a4a4a; /* Darker red for notes */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+}
+
+body.dark-mode .action-button {
+    background-color: #5b5b5b; /* Dark background for dark mode */
+    color: #f9f9f9; /* Light text color for dark mode */
+    border: 1px solid #6f6f6e; /* Border for dark mode */
+}
+
+body.dark-mode .action-button:hover {
+    background-color: #423b3b; /* Darker background on hover for dark mode */
+}
+
+body.dark-mode .input-field {
+    background-color: #5b5b5b; /* Darker background for input field */
+    color: #f9f9f9; /* Light text color for input field */
+}
+
+body.dark-mode .container_settings {
+    background-color: #4a4a4a; /* Darker background for settings */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+
+}
+
+body.dark-mode #add-element-input {
+    background-color: #5b5b5b; /* Darker background for input field */
+    color: #f9f9f9; /* Light text color for input field */
+}
+
+body.dark-mode .add-element-container_options {
+    background-color: #4a4a4a; /* Darker background for input field */
+    color: #f9f9f9; /* Light text color for input field */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+body.dark-mode .add-element-container_settings {
+    background-color: #4a4a4a; /* Darker background for input field */
+    color: #f9f9f9; /* Light text color for input field */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+body.dark-mode .add-element-container_textarea {
+    background-color: #4a4a4a; /* Darker background for input field */
+    color: #f9f9f9; /* Light text color for input field */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+.settings-group {
+    margin-bottom: 5px;
+}
+
+.settings-group label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+.settings-group select,
+.settings-group input {
+    width: 100%;
+    padding: 4px;
+    border-radius: 5px;
+    border: 1px solid #6f6f6e;
+    background-color: #e8e8e0;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+/* Dark mode styles for new elements */
+body.dark-mode .settings-group select {
+    background-color: #5b5b5b;
+    color: #f9f9f9;
+}
+
+body.dark-mode .settings-group label {
+    color: #f9f9f9;
+}
+
+.tag-suggestions {
+    position: absolute;
+    background-color: #e8e8e0;
+    border: 1px solid #6f6f6e;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+    display: none;
+}
+
+.tag-suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.tag-suggestion-item:hover {
+    background-color: #d8d3c5;
+}
+
+/* Dark mode styles */
+body.dark-mode .tag-suggestions {
+    background-color: #5b5b5b;
+    border-color: #6f6f6e;
+}
+
+body.dark-mode .tag-suggestion-item:hover {
+    background-color: #4a4a4a;
+}
+
+/* Styles for subtasks */
+.subtask-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#subtasks-list {
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+}
+
+#subtasks-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: #e8e8e0;
+    border-radius: 5px;
+}
+
+.subtask-checkbox {
+    margin: 0;
+}
+
+.subtask-delete-button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.subtask-delete-button:hover {
+    color: #ff4444;
+}
+
+/* Dark mode styles for subtasks */
+body.dark-mode #subtasks-list li {
+    background-color: #5b5b5b;
+}
+
+body.dark-mode .subtask-delete-button {
+    color: #ccc;
+}
+
+body.dark-mode .subtask-delete-button:hover {
+    color: #ff6666;
+}
+
+/* Zmniejszamy nagłówki */
+.add-element-container_settings h2,
+.add-element-container_textarea h2,
+#subtasks-container h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Style dla przycisku Save */
+.save-button {
+    background-color: #8fb339;
+    margin-top: auto;  /* Przyklej do dołu kontenera options */
+}
+
+.save-button:hover {
+    background-color: #7a9830;
+}
+
+/* Dark mode dla przycisku Save */
+body.dark-mode .save-button {
+    background-color: #6b8a2c;
+}
+
+body.dark-mode .save-button:hover {
+    background-color: #597324;
+}
+
+/* Style dla nagłówka Content */
+.main-task-container h2 {
+    position: relative;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+/* Media queries dla różnych rozmiarów ekranu */
+@media (max-width: 1400px) {
+    .container {
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    .add-element-container_options {
+        width: 250px;
+        min-width: 250px;
+    }
+    
+    .add-element-container_settings {
+        width: 350px;
+        min-width: 350px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .container_left {
+        width: 250px;
+        min-width: 250px;
+    }
+    
+    .add-element-container_options {
+        width: 200px;
+        min-width: 200px;
+    }
+    
+    .add-element-container_settings {
+        width: 300px;
+        min-width: 300px;
+    }
+}
+
+/* Style dla elementów zadań i notatek */
+.task-item, .note-item {
+    background-color: #e8e8e0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Nagłówki elementów */
+.task-header, .note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+/* Tagi projektów */
+.task-project-tag, .note-project-tag {
+    background-color: #bfad96;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* Priorytety zadań */
+.task-priority {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.priority-high { background-color: #ff6b6b; color: white; }
+.priority-medium { background-color: #ffd93d; color: black; }
+.priority-low { background-color: #6bff6b; color: black; }
+
+/* Treść elementów */
+.task-content, .note-content {
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Lista podzadań */
+.task-subtasks {
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.subtask-item {
+    display: flex;
+    align-items: center;
+    margin: 3px 0;
+}
+
+.subtask-checkbox {
+    margin-right: 5px;
+}
+
+/* Stopka elementów */
+.task-footer, .note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 11px;
+}
+
+/* Przyciski akcji */
+.task-actions, .note-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.task-actions button, .note-actions button {
+    padding: 3px 8px;
+    font-size: 11px;
+}
+
+/* Dark mode */
+body.dark-mode .task-item,
+body.dark-mode .note-item {
+    background-color: #5b5b5b;
+}
+
+body.dark-mode .task-project-tag,
+body.dark-mode .note-project-tag {
+    background-color: #4a4a4a;
+}
+
+/* Styles for container headers and filters */
+.filters {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-project, .filter-category {
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #6f6f6e;
+    background-color: #e8e8e0;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #d8d3c5;
+    margin: 15% auto;
+    padding: 20px;
+    width: 60%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+#modal-form {
+    margin: 15px 0;
+}
+
+/* Dark mode styles */
+body.dark-mode .modal-content {
+    background-color: #4a4a4a;
+    color: #f9f9f9;
+}
+
+body.dark-mode .filter-project,
+body.dark-mode .filter-category {
+    background-color: #5b5b5b;
+    color: #f9f9f9;
+}
+
+/* Make sure template items are hidden */
+.template {
+    display: none !important;
+}
+
+/* AI chat styling */
+.ai-chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    min-height: 300px;
+    max-height: calc(100vh - 400px);
+}
+
+.chat-message {
+    margin: 5px 0;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #bfad96;
+    color: white;
+    margin-left: auto;
+}
+
+.assistant-message {
+    background-color: #e8e8e0;
+    color: #333;
+    margin-right: auto;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid #6f6f6e;
+}
+
+/* Dark mode styles */
+body.dark-mode .chat-messages {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .assistant-message {
+    background-color: #4a4a4a;
+    color: #f9f9f9;
+}
+
+body.dark-mode .user-message {
+    background-color: #6b8a2c;
+}

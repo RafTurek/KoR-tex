@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>RAF_PAD</title>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="container_left">
+        <!-- Container for AI chat on the left side -->
+        <div class="ai-chat-container">
+            <h2>AI Chat</h2>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" class="input-field" placeholder="Type your message...">
+                <button id="send-message" class="action-button">Send</button>
+                <button id="clear-chat" class="action-button">Clear Chat</button>
+            </div>
+        </div>
+        <div class="container_settings"> <!-- container for settings under AI chat -->
+            <h2>Settings</h2>
+            <!-- Future settings elements will go here -->
+            <button id="chat-settings-button" class="action-button">Chat settings</button>
+            <button id="user-settings-button" class="action-button">User settings</button>
+            <!-- Button to toggle theme -->
+            <button id="toggle-theme-button" class="action-button">Toggle Dark/Light Theme</button>
+
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- Container for adding new elements at the top -->
+        <div class="add-element-container">
+            
+            <div class="add-element-container_options">
+                <h2>Add New Element</h2>
+                <input id="add-element-input" type="text" placeholder="Enter new task or note" class="input-field">
+                <button id="add-task-button" class="action-button">New Task</button>
+                <button id="add-note-button" class="action-button">New Note</button>
+                <button id="save-element-button" class="action-button save-button">Save</button>
+            </div>
+            <div class="add-element-container_settings">
+                <h2>Settings</h2>
+                <!-- Settings for notes -->
+                <div id="note-settings" class="settings-group" style="display: none;">
+                    <label for="note-project-tag">Project:</label>
+                    <input type="text" id="note-project-tag" class="input-field" placeholder="Project tag (default: #Inbox)">
+                    
+                    <label for="note-category">Category:</label>
+                    <select id="note-category" class="input-field">
+                        <option value="">-- Select Category --</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="study">Study</option>
+                    </select>
+                </div>
+
+                <!-- Settings for tasks -->
+                <div id="task-settings" class="settings-group" style="display: none;">
+                    <label for="task-project-tag">Project:</label>
+                    <input type="text" id="task-project-tag" class="input-field" placeholder="Project tag (default: #Inbox)">
+                    
+                    <label for="task-category">Category:</label>
+                    <select id="task-category" class="input-field">
+                        <option value="">-- Select Category --</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="study">Study</option>
+                    </select>
+                    
+                    <label for="task-priority">Priority:</label>
+                    <select id="task-priority" class="input-field">
+                        <option value="">-- Select Priority --</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    
+                    <label for="task-deadline">Deadline:</label>
+                    <input type="date" id="task-deadline" class="input-field">
+                </div>
+            </div>
+
+            <div class="add-element-container_textarea">
+                <div class="main-task-container">
+                    <h2>Content</h2>
+                    <textarea id="add-element-textarea" placeholder="Enter new task or note" class="input-field"></textarea>
+                </div>
+                
+                <!-- Container for subtasks - visible only for tasks -->
+                <div id="subtasks-container" style="display: none;">
+                    <h3>Subtasks</h3>
+                    <div class="subtask-input-container">
+                        <input type="text" id="subtask-input" class="input-field" placeholder="Add subtask">
+                        <button id="add-subtask-button" class="action-button">Add</button>
+                    </div>
+                    <ul id="subtasks-list"></ul>
+                </div>
+            </div>
+                <!-- Input fields for adding new tasks or notes -->
+                
+            
+            
+        </div>
+
+        <!-- Bottom section divided into two containers -->
+        <div class="bottom-container">
+            <!-- Container for tasks -->
+            <div class="tasks-container">
+                <div class="container-header">
+                    <h2>Tasks</h2>
+                    <div class="filters">
+                        <select class="filter-project" id="task-filter-project">
+                            <option value="">All Projects</option>
+                        </select>
+                        <select class="filter-category" id="task-filter-category">
+                            <option value="">All Categories</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="study">Study</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tasks-list">
+                    <!-- Template for task item -->
+                    <div class="task-item template" style="display: none;">
+                        <div class="task-header">
+                            <span class="task-project-tag"></span>
+                            <span class="task-priority"></span>
+                            <span class="task-deadline"></span>
+                        </div>
+                        <div class="task-content"></div>
+                        <div class="task-subtasks"></div>
+                        <div class="task-footer">
+                            <span class="task-category"></span>
+                            <div class="task-actions">
+                                <button class="action-button edit-task">Edit</button>
+                                <button class="action-button delete-task">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container for notes -->
+            <div class="notes-container">
+                <div class="container-header">
+                    <h2>Notes</h2>
+                    <div class="filters">
+                        <select class="filter-project" id="note-filter-project">
+                            <option value="">All Projects</option>
+                        </select>
+                        <select class="filter-category" id="note-filter-category">
+                            <option value="">All Categories</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="study">Study</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="notes-list">
+                    <!-- Template for note item -->
+                    <div class="note-item template" style="display: none;">
+                        <div class="note-header">
+                            <span class="note-project-tag"></span>
+                            <span class="note-category"></span>
+                        </div>
+                        <div class="note-content"></div>
+                        <div class="note-footer">
+                            <span class="note-date"></span>
+                            <div class="note-actions">
+                                <button class="action-button edit-note">Edit</button>
+                                <button class="action-button delete-note">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for editing -->
+<div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modal-title">Edit</h2>
+        <div id="modal-form">
+            <!-- Form content will be dynamically inserted -->
+        </div>
+        <button id="modal-save" class="action-button save-button">Save Changes</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
