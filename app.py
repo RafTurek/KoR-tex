@@ -12,6 +12,9 @@ from dataclasses import dataclass, field
 import json
 from sentence_transformers import SentenceTransformer
 import numpy as np
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+from backend.inference import LLMInference
 
 app = Flask(__name__)
 
@@ -46,131 +49,68 @@ class ChatMessage:
 
 class ChatManager:
     def __init__(self):
-        self.model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-        self.model = None
+        self.llm = LLMInference()
         self.chat_histories: Dict[str, List[ChatMessage]] = {}
         self.max_history = 10
-        self.current_context = {}  # Dodajemy śledzenie kontekstu
         
-        # Rozszerzone kategorie odpowiedzi
-        self.responses = {
+        # Fallback responses gdy model nie jest dostępny
+        self.fallback_responses = {
             'greeting': [
                 "Cześć! W czym mogę pomóc?",
-                "Witaj! Jak mogę Ci dzisiaj pomóc?",
-                "Dzień dobry! Co chciałbyś zrobić?"
-            ],
-            'trip_planning': [
-                "Świetnie! Zaplanujmy wyjazd. Na ile dni planujesz?",
-                "Dobrze, pomyślmy o szczegółach. Jaki jest budżet?",
-                "OK, zróbmy listę potrzebnych rzeczy. Co jest najważniejsze?",
-                "Może utworzymy harmonogram dnia po dniu?",
-                "Jakie atrakcje Cię interesują?",
-                "Pomyślmy o transporcie i zakwaterowaniu. Masz jakieś preferencje?"
-            ],
-            'activity_suggestion': [
-                "Proponuję następujące aktywności:\n- Zwiedzanie okolicy\n- Plaża i kąpiele\n- Lokalne restauracje\n- Sporty wodne",
-                "Możemy zaplanować:\n- Wycieczki rowerowe\n- Spacery brzegiem morza\n- Wizyty w zabytkowych miejscach\n- Relaks na plaży",
-                "Oto kilka pomysłów:\n- Poranny jogging na plaży\n- Popołudniowe zwiedzanie\n- Wieczorne rozrywki\n- Lokalna kuchnia"
-            ],
-            'task_creation': [
-                "Utworzę zadanie z tym planem. Do jakiego projektu je przypisać?",
-                "Zapiszę to jako zadanie. Jaki priorytet mu nadać?",
-                "Mogę dodać to jako zadanie z podpunktami. Chcesz zobaczyć?"
+                "Witaj! Jak mogę Ci pomóc?",
+                "Dzień dobry! Co mogę dla Ciebie zrobić?"
             ],
             'default': [
-                "Rozumiem. Jak mogę pomóc dalej?",
-                "Co jeszcze chciałbyś zaplanować?",
-                "Może skupimy się na konkretnym aspekcie?"
+                "Rozumiem. Co dalej?",
+                "Jak mogę pomóc?",
+                "Słucham, co mogę zrobić?"
             ]
-        }
-        
-        # Rozszerzone słowa kluczowe
-        self.keywords = {
-            'greeting': ['cześć', 'hej', 'witaj', 'dzień dobry', 'siema'],
-            'trip_planning': ['wycieczka', 'wyjazd', 'wakacje', 'urlop', 'morze', 'góry', 'planować', 'zaplanować'],
-            'activity_suggestion': ['co robić', 'atrakcje', 'propozycje', 'pomysły', 'co proponujesz', 'jakie'],
-            'task_creation': ['zapisz', 'utwórz', 'dodaj', 'zanotuj', 'zadanie']
         }
 
     def initialize_model(self):
-        """Inicjalizacja modelu"""
-        if self.model is None:
-            try:
-                self.model = SentenceTransformer(self.model_name)
-                print("Model załadowany pomyślnie!")
-            except Exception as e:
-                print(f"Błąd ładowania modelu: {str(e)}")
-                try:
-                    # Fallback do prostszego modelu
-                    self.model_name = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-                    self.model = SentenceTransformer(self.model_name)
-                    print("Fallback model załadowany pomyślnie!")
-                except Exception as e:
-                    print(f"Błąd ładowania fallback modelu: {str(e)}")
-                    self.model = None
-    
-    def detect_category(self, text: str, history: List[ChatMessage]) -> str:
-        """Wykrywa kategorię na podstawie słów kluczowych i historii"""
-        text = text.lower()
-        
-        # Sprawdź kontekst z historii
-        if history:
-            last_message = history[-1].content.lower()
-            if any(keyword in last_message for keyword in self.keywords['trip_planning']):
-                return 'trip_planning'
-            if any(keyword in last_message for keyword in self.keywords['activity_suggestion']):
-                return 'activity_suggestion'
-        
-        # Sprawdź bieżący tekst
-        for category, keywords in self.keywords.items():
-            if any(keyword in text for keyword in keywords):
-                return category
-        
-        return 'default'
-    
-    def generate_response(self, 
-                         prompt: str, 
-                         session_id: str,
-                         context: dict = None) -> str:
-        """Generuje odpowiedź z uwzględnieniem kontekstu i historii"""
-        history = self.chat_histories.get(session_id, [])
-        
-        # Wykryj kategorię
-        category = self.detect_category(prompt, history)
-        
-        # Aktualizuj kontekst
-        if category == 'trip_planning':
-            self.current_context['planning_trip'] = True
-        elif category == 'activity_suggestion' and self.current_context.get('planning_trip'):
-            category = 'activity_suggestion'
-        
-        # Wybierz odpowiednią odpowiedź
-        if self.model is not None:
-            responses = self.responses[category]
-            prompt_embedding = self.model.encode(prompt)
-            response_embeddings = self.model.encode(responses)
-            
-            similarities = np.dot(response_embeddings, prompt_embedding)
-            best_response_idx = np.argmax(similarities)
-            response_text = responses[best_response_idx]
-        else:
-            response_text = np.random.choice(self.responses[category])
-        
-        # Aktualizuj historię
-        history.append(ChatMessage(role="user", content=prompt))
-        history.append(ChatMessage(role="assistant", content=response_text))
-        self.chat_histories[session_id] = history[-self.max_history:]
-        
-        return response_text
-    
-    def get_chat_history(self, session_id: str) -> List[Dict]:
-        """Zwraca historię czatu dla danej sesji"""
+        """Inicjalizacja modelu LLM"""
+        return self.llm.initialize()
+
+    def get_chat_history(self, session_id: str) -> List[dict]:
+        """Pobiera historię czatu dla danej sesji"""
         history = self.chat_histories.get(session_id, [])
         return [msg.to_dict() for msg in history]
-    
+
     def clear_chat_history(self, session_id: str):
         """Czyści historię czatu dla danej sesji"""
-        self.chat_histories.pop(session_id, None)
+        if session_id in self.chat_histories:
+            del self.chat_histories[session_id]
+
+    def generate_response(self, prompt: str, session_id: str, context: dict = None) -> str:
+        """Generuje odpowiedź używając modelu LLM"""
+        try:
+            # Pobierz historię czatu
+            history = self.chat_histories.get(session_id, [])
+            history_dicts = [msg.to_dict() for msg in history]
+            
+            # Generuj odpowiedź
+            if self.llm.model is not None:
+                response = self.llm.generate_response(prompt, history_dicts, context)
+            else:
+                # Fallback do prostych odpowiedzi
+                if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
+                    response = np.random.choice(self.fallback_responses['greeting'])
+                else:
+                    response = np.random.choice(self.fallback_responses['default'])
+            
+            # Zapisz w historii
+            history.append(ChatMessage(role="user", content=prompt))
+            history.append(ChatMessage(role="assistant", content=response))
+            self.chat_histories[session_id] = history[-self.max_history:]
+            
+            return response
+            
+        except Exception as e:
+            print(f"Błąd generowania odpowiedzi: {str(e)}")
+            # Fallback do prostych odpowiedzi
+            if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
+                return np.random.choice(self.fallback_responses['greeting'])
+            return np.random.choice(self.fallback_responses['default'])
 
 # Inicjalizacja chat managera
 chat_manager = ChatManager()
