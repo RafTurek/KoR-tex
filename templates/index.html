@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>RAF_PAD</title>
 </head>
 <body>
@@ -17,9 +18,15 @@
                 <!-- Messages will be added here -->
             </div>
             <div class="chat-input-container">
-                <input type="text" id="chat-input" class="input-field" placeholder="Type your message...">
-                <button id="send-message" class="action-button">Send</button>
-                <button id="clear-chat" class="action-button">Clear Chat</button>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-input" class="input-field" placeholder="Napisz wiadomość...">
+                    <button id="send-message" class="action-button icon-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <button id="clear-chat" class="action-button icon-button">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
         </div>
         <div class="container_settings"> <!-- container for settings under AI chat -->
