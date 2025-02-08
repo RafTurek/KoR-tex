@@ -5,9 +5,15 @@ const toggleButton = document.getElementById('toggle-theme-button');
 toggleButton.addEventListener('click', () => {
     // Toggle the dark mode class on the body
     document.body.classList.toggle('dark-mode');
+
+    // Toggle the icon based on the current mode
+    const icon = toggleButton.querySelector('i');
+    icon.classList.toggle('fa-moon');
+    icon.classList.toggle('fa-sun');
 });
 
 // Funkcja do formatowania pojedynczego tagu projektowego
+
 function formatProjectTag(input) {
     if (!input || input.trim() === '') {
         return '';  // Pusty string zamiast #Inbox
@@ -136,39 +142,34 @@ function addSubtask(text) {
 }
 
 // Obsługa przycisku Save
-document.addEventListener('DOMContentLoaded', () => {
-    const saveElementButton = document.getElementById('save-element-button');
-    
-    if (saveElementButton) {
-        saveElementButton.addEventListener('click', async () => {
-            if (!currentElementType) {
-                addSystemMessage('Wybierz najpierw typ elementu (Notatka lub Zadanie)');
-                return;
-            }
+const saveElementButton = document.getElementById('save-element-button');
 
-            const textarea = document.getElementById('add-element-textarea');
-            if (!textarea) {
-                console.error('Nie znaleziono pola tekstowego');
-                return;
-            }
+saveElementButton.addEventListener('click', async () => {
+    if (!currentElementType) {
+        alert('Please select element type (Note or Task) first');
+        return;
+    }
 
-            const content = textarea.value.trim();
-            if (!content) {
-                addSystemMessage('Wprowadź treść przed zapisaniem');
-                return;
-            }
+    // Pobierz zawartość
+    const content = document.getElementById('add-element-textarea').value.trim();
+    if (!content) {
+        alert('Please enter content');
+        return;
+    }
 
-            try {
-                if (currentElementType === 'note') {
-                    await saveNote();
-                } else {
-                    await saveTask();
-                }
-            } catch (error) {
-                console.error('Error saving element:', error);
-                addSystemMessage('Wystąpił błąd podczas zapisywania. Spróbuj ponownie.');
-            }
-        });
+    try {
+        if (currentElementType === 'note') {
+            await saveNote();
+        } else {
+            await saveTask();
+        }
+        
+        // Wyczyść formularz po zapisie
+        clearForm();
+        
+    } catch (error) {
+        console.error('Error saving element:', error);
+        alert('Error saving element. Please try again.');
     }
 });
 
@@ -192,17 +193,13 @@ function showMessage(message, type = 'info') {
 // Funkcja zapisująca notatkę
 async function saveNote() {
     const saveButton = document.getElementById('save-element-button');
-    if (!saveButton) return;
-    
-    saveButton.disabled = true;
+    showLoading(saveButton);
     try {
         const noteData = {
-            content: document.getElementById('add-element-textarea').value.trim(),
-            category: document.getElementById('note-category')?.value || '',
-            project_tag: document.getElementById('note-project-tag')?.value || '#inbox'
+            content: document.getElementById('add-element-textarea').value,
+            category: document.getElementById('note-category').value,
+            project_tag: document.getElementById('note-project-tag').value || '#inbox'
         };
-
-        console.log('Saving note:', noteData);
 
         const response = await fetch('/api/notes', {
             method: 'POST',
@@ -213,104 +210,75 @@ async function saveNote() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Nie udało się zapisać notatki');
+            throw new Error('Failed to save note');
         }
 
         const result = await response.json();
         console.log('Note saved:', result);
-        
-        clearForm();
         await loadElements();
-        addSystemMessage('Notatka została zapisana');
+        await loadProjectFilters();
+        showMessage('Note saved successfully', 'success');
     } catch (error) {
-        console.error('Error saving note:', error);
-        addSystemMessage(`Błąd: ${error.message}`);
+        showMessage(error.message, 'error');
     } finally {
-        saveButton.disabled = false;
+        hideLoading(saveButton);
     }
 }
 
 // Funkcja zapisująca zadanie
 async function saveTask() {
-    const saveButton = document.getElementById('save-element-button');
-    if (!saveButton) return;
-    
-    saveButton.disabled = true;
-    try {
-        const taskData = {
-            content: document.getElementById('add-element-textarea').value.trim(),
-            category: document.getElementById('task-category')?.value || '',
-            priority: document.getElementById('task-priority')?.value || 'medium',
-            deadline: document.getElementById('task-deadline')?.value || null,
-            project_tag: document.getElementById('task-project-tag')?.value || '#inbox',
-            subtasks: Array.from(document.getElementById('subtasks-list')?.children || [])
-                .filter(li => !li.classList.contains('template'))
-                .map(li => ({
-                    content: li.querySelector('span')?.textContent || '',
-                    is_completed: li.querySelector('input[type="checkbox"]')?.checked || false
-                }))
-        };
+    const taskData = {
+        content: document.getElementById('add-element-textarea').value,
+        category: document.getElementById('task-category').value,
+        priority: document.getElementById('task-priority').value,
+        deadline: document.getElementById('task-deadline').value,
+        project_tag: document.getElementById('task-project-tag').value || '#inbox',
+        subtasks: Array.from(document.getElementById('subtasks-list').children).map(li => ({
+            content: li.querySelector('span').textContent,
+            is_completed: li.querySelector('input[type="checkbox"]').checked
+        }))
+    };
 
-        console.log('Saving task:', taskData);
+    const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taskData)
+    });
 
-        const response = await fetch('/api/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(taskData)
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Nie udało się zapisać zadania');
-        }
-
-        const result = await response.json();
-        console.log('Task saved:', result);
-        
-        clearForm();
-        await loadElements();
-        addSystemMessage('Zadanie zostało zapisane');
-    } catch (error) {
-        console.error('Error saving task:', error);
-        addSystemMessage(`Błąd: ${error.message}`);
-    } finally {
-        saveButton.disabled = false;
+    if (!response.ok) {
+        throw new Error('Failed to save task');
     }
+
+    const result = await response.json();
+    console.log('Task saved:', result);
+    await loadElements();
+    await loadProjectFilters();
 }
 
 // Funkcja czyszcząca formularz
 function clearForm() {
     // Wyczyść textarea
-    const textarea = document.getElementById('add-element-textarea');
-    if (textarea) textarea.value = '';
+    document.getElementById('add-element-textarea').value = '';
     
     // Wyczyść pola notatki
-    const noteFields = ['note-project-tag', 'note-category'];
-    noteFields.forEach(id => {
-        const field = document.getElementById(id);
-        if (field) field.value = '';
-    });
+    document.getElementById('note-project-tag').value = '';
+    document.getElementById('note-category').value = '';
     
     // Wyczyść pola zadania
-    const taskFields = ['task-project-tag', 'task-category', 'task-priority', 'task-deadline'];
-    taskFields.forEach(id => {
-        const field = document.getElementById(id);
-        if (field) field.value = '';
-    });
+    document.getElementById('task-project-tag').value = '';
+    document.getElementById('task-category').value = '';
+    document.getElementById('task-priority').value = '';
+    document.getElementById('task-deadline').value = '';
     
     // Wyczyść listę podzadań
-    const subtasksList = document.getElementById('subtasks-list');
-    if (subtasksList) subtasksList.innerHTML = '';
+    document.getElementById('subtasks-list').innerHTML = '';
     
-    // Ukryj kontenery ustawień
-    const containers = ['task-settings', 'note-settings', 'subtasks-container'];
-    containers.forEach(id => {
-        const container = document.getElementById(id);
-        if (container) container.style.display = 'none';
-    });
+    // Ukryj wszystkie kontenery ustawień
+    taskSettings.style.display = 'none';
+    noteSettings.style.display = 'none';
+    subtasksContainer.style.display = 'none';
     
     // Zresetuj typ elementu
     currentElementType = null;
@@ -328,164 +296,75 @@ function setupInfiniteScroll() {
     });
 }
 
-// Funkcja ładująca elementy
-async function loadElements() {
-    try {
-        console.log('Loading elements...');
-        const [notesResponse, tasksResponse] = await Promise.all([
-            fetch('/api/notes'),
-            fetch('/api/tasks')
-        ]);
-
-        if (!notesResponse.ok || !tasksResponse.ok) {
-            throw new Error('Failed to fetch data');
-        }
-
-        const notes = await notesResponse.json();
-        const tasks = await tasksResponse.json();
-        
-        console.log('Loaded notes:', notes);
-        console.log('Loaded tasks:', tasks);
-        
-        await displayNotes(notes);
-        await displayTasks(tasks);
-        
-        // Odśwież filtry projektów
-        await loadProjectFilters();
-    } catch (error) {
-        console.error('Error loading elements:', error);
-        addSystemMessage('Wystąpił błąd podczas ładowania elementów');
-    }
-}
-
-// Funkcja wyświetlająca notatki
-async function displayNotes(notes) {
+// Wyświetlanie notatek
+function displayNotes(notes) {
     const notesList = document.querySelector('.notes-list');
-    if (!notesList) {
-        console.error('Notes list container not found');
-        return;
-    }
-    
-    // Znajdź i zachowaj template
     const template = notesList.querySelector('.note-item.template');
-    if (!template) {
-        console.error('Note template not found');
-        return;
-    }
     
-    // Wyczyść listę, zachowując template
-    notesList.innerHTML = '';
-    notesList.appendChild(template.cloneNode(true));
-    
-    console.log(`Displaying ${notes.length} notes`);
+    // Zachowaj template przed czyszczeniem
+    const templateClone = template.cloneNode(true);
+    notesList.innerHTML = ''; // Wyczyść listę
+    notesList.appendChild(templateClone); // Przywróć template
     
     notes.forEach(note => {
-        try {
-            const noteElement = template.cloneNode(true);
-            noteElement.classList.remove('template');
-            noteElement.style.display = 'block';
-            
-            // Wypełnij dane notatki
-            const projectTag = noteElement.querySelector('.note-project-tag');
-            const category = noteElement.querySelector('.note-category');
-            const content = noteElement.querySelector('.note-content');
-            const date = noteElement.querySelector('.note-date');
-            
-            if (projectTag) projectTag.textContent = note.project_tag || '#inbox';
-            if (category) category.textContent = note.category || '';
-            if (content) content.textContent = note.content;
-            if (date) date.textContent = new Date(note.created_at).toLocaleDateString();
-            
-            // Dodaj obsługę przycisków
-            const editButton = noteElement.querySelector('.edit-note');
-            const deleteButton = noteElement.querySelector('.delete-note');
-            
-            if (editButton) {
-                editButton.onclick = () => editNote(note.id);
-            }
-            if (deleteButton) {
-                deleteButton.onclick = () => deleteNote(note.id);
-            }
-            
-            notesList.appendChild(noteElement);
-        } catch (error) {
-            console.error('Error displaying note:', error);
-        }
+        const noteElement = templateClone.cloneNode(true);
+        noteElement.classList.remove('template');
+        noteElement.style.display = 'block';
+        
+        // Wypełnij dane notatki
+        noteElement.querySelector('.note-project-tag').textContent = note.project_tag;
+        noteElement.querySelector('.note-category').textContent = note.category || '';
+        noteElement.querySelector('.note-content').textContent = note.content;
+        noteElement.querySelector('.note-date').textContent = new Date(note.created_at).toLocaleDateString();
+        
+        // Dodaj obsługę przycisków
+        noteElement.querySelector('.edit-note').onclick = () => editNote(note.id);
+        noteElement.querySelector('.delete-note').onclick = () => deleteNote(note.id);
+        
+        notesList.appendChild(noteElement);
     });
 }
 
-// Funkcja wyświetlająca zadania
-async function displayTasks(tasks) {
+// Wyświetlanie zadań
+function displayTasks(tasks) {
     const tasksList = document.querySelector('.tasks-list');
-    if (!tasksList) {
-        console.error('Tasks list container not found');
-        return;
-    }
-    
-    // Znajdź i zachowaj template
     const template = tasksList.querySelector('.task-item.template');
-    if (!template) {
-        console.error('Task template not found');
-        return;
-    }
     
-    // Wyczyść listę, zachowując template
-    tasksList.innerHTML = '';
-    tasksList.appendChild(template.cloneNode(true));
-    
-    console.log(`Displaying ${tasks.length} tasks`);
+    // Zachowaj template przed czyszczeniem
+    const templateClone = template.cloneNode(true);
+    tasksList.innerHTML = ''; // Wyczyść listę
+    tasksList.appendChild(templateClone); // Przywróć template
     
     tasks.forEach(task => {
-        try {
-            const taskElement = template.cloneNode(true);
-            taskElement.classList.remove('template');
-            taskElement.style.display = 'block';
-            
-            // Wypełnij dane zadania
-            const projectTag = taskElement.querySelector('.task-project-tag');
-            const priority = taskElement.querySelector('.task-priority');
-            const deadline = taskElement.querySelector('.task-deadline');
-            const content = taskElement.querySelector('.task-content');
-            const category = taskElement.querySelector('.task-category');
-            
-            if (projectTag) projectTag.textContent = task.project_tag || '#inbox';
-            if (priority) {
-                priority.textContent = task.priority || 'medium';
-                priority.className = `task-priority priority-${task.priority || 'medium'}`;
-            }
-            if (deadline) deadline.textContent = task.deadline ? new Date(task.deadline).toLocaleDateString() : '';
-            if (content) content.textContent = task.content;
-            if (category) category.textContent = task.category || '';
-            
-            // Dodaj podzadania
-            const subtasksList = taskElement.querySelector('.task-subtasks');
-            if (subtasksList && task.subtasks && Array.isArray(task.subtasks)) {
-                task.subtasks.forEach(subtask => {
-                    const subtaskItem = document.createElement('div');
-                    subtaskItem.className = 'subtask-item';
-                    subtaskItem.innerHTML = `
-                        <input type="checkbox" class="subtask-checkbox" ${subtask.is_completed ? 'checked' : ''}>
-                        <span>${subtask.content}</span>
-                    `;
-                    subtasksList.appendChild(subtaskItem);
-                });
-            }
-            
-            // Dodaj obsługę przycisków
-            const editButton = taskElement.querySelector('.edit-task');
-            const deleteButton = taskElement.querySelector('.delete-task');
-            
-            if (editButton) {
-                editButton.onclick = () => editTask(task.id);
-            }
-            if (deleteButton) {
-                deleteButton.onclick = () => deleteTask(task.id);
-            }
-            
-            tasksList.appendChild(taskElement);
-        } catch (error) {
-            console.error('Error displaying task:', error);
-        }
+        const taskElement = templateClone.cloneNode(true);
+        taskElement.classList.remove('template');
+        taskElement.style.display = 'block';
+        
+        // Wypełnij dane zadania
+        taskElement.querySelector('.task-project-tag').textContent = task.project_tag;
+        taskElement.querySelector('.task-priority').textContent = task.priority || '';
+        taskElement.querySelector('.task-priority').classList.add(`priority-${task.priority}`);
+        taskElement.querySelector('.task-deadline').textContent = task.deadline ? new Date(task.deadline).toLocaleDateString() : '';
+        taskElement.querySelector('.task-content').textContent = task.content;
+        taskElement.querySelector('.task-category').textContent = task.category || '';
+        
+        // Dodaj podzadania
+        const subtasksList = taskElement.querySelector('.task-subtasks');
+        task.subtasks?.forEach(subtask => {
+            const subtaskItem = document.createElement('div');
+            subtaskItem.className = 'subtask-item';
+            subtaskItem.innerHTML = `
+                <input type="checkbox" class="subtask-checkbox" ${subtask.is_completed ? 'checked' : ''}>
+                <span>${subtask.content}</span>
+            `;
+            subtasksList.appendChild(subtaskItem);
+        });
+        
+        // Dodaj obsługę przycisków
+        taskElement.querySelector('.edit-task').onclick = () => editTask(task.id);
+        taskElement.querySelector('.delete-task').onclick = () => deleteTask(task.id);
+        
+        tasksList.appendChild(taskElement);
     });
 }
 
@@ -678,12 +557,9 @@ window.onclick = (event) => {
 
 // Inicjalizacja przy starcie
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing application...');
-    loadElements().then(() => {
-        console.log('Initial load completed');
-    }).catch(error => {
-        console.error('Error during initialization:', error);
-    });
+    loadElements();
+    loadProjectFilters();
+    setupFilters();
 });
 
 // Funkcje do aktualizacji
@@ -749,6 +625,22 @@ function filterTasks(projectTag, category) {
         
         task.style.display = projectMatch && categoryMatch ? 'block' : 'none';
     });
+}
+
+// Zmiana funkcji loadElements
+async function loadElements() {
+    try {
+        // Pobierz notatki i zadania
+        const [notes, tasks] = await Promise.all([
+            fetch('/api/notes').then(r => r.json()),
+            fetch('/api/tasks').then(r => r.json())
+        ]);
+        
+        displayNotes(notes);
+        displayTasks(tasks);
+    } catch (error) {
+        console.error('Error loading elements:', error);
+    }
 }
 
 // Chat functionality
@@ -858,35 +750,125 @@ document.addEventListener('DOMContentLoaded', () => {
     loadChatHistory();
 });
 
-// Model switcher functionality
-document.getElementById('modelSelect').addEventListener('change', async function(e) {
-    const modelType = e.target.value;
-    try {
-        const response = await fetch('/api/chat/model', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ model_type: modelType })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to switch model');
-        }
-        
-        const data = await response.json();
-        addSystemMessage(`Przełączono na model: ${data.model_info.description}`);
-    } catch (error) {
-        console.error('Error switching model:', error);
-        addSystemMessage('Wystąpił błąd podczas przełączania modelu');
+// Obsługa ustawień AI
+const aiSettingsButton = document.getElementById('Ai-settings-button');
+const aiSettingsModal = document.getElementById('ai-settings-modal');
+const closeAiSettingsModal = document.getElementById('close-ai-settings-modal');
+const aiSettingsForm = document.getElementById('ai-settings-form');
+const aiSettingsSave = document.getElementById('ai-settings-save');
+
+// Domyślne ustawienia
+const defaultAiSettings = {
+    temperature: 0.7,
+    maxTokens: 512,
+    apiKey: '',
+    userIdentity: '',
+    shortTermPlans: '',
+    longTermPlans: '',
+    responseTone: '',
+    responseLength: '',
+    llmFocusType: '',
+    llmSubjectArea: ''
+};
+
+// Funkcja do ładowania ustawień z localStorage
+function loadAiSettings() {
+    const savedSettings = localStorage.getItem('aiSettings');
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        document.getElementById('ai-temperature').value = settings.temperature;
+        document.getElementById('ai-max-tokens').value = settings.maxTokens;
+        document.getElementById('ai-api-key').value = settings.apiKey;
+        document.getElementById('ai-user-identity').value = settings.userIdentity;
+        document.getElementById('ai-short-term-plans').value = settings.shortTermPlans;
+        document.getElementById('ai-long-term-plans').value = settings.longTermPlans;
+        document.getElementById('ai-response-tone').value = settings.responseTone;
+        document.getElementById('ai-response-length').value = settings.responseLength;
+        document.getElementById('ai-llm-focus-type').value = settings.llmFocusType;
+        document.getElementById('ai-llm-subject-area').value = settings.llmSubjectArea;
+    } else {
+        // Ustaw wartości domyślne
+        document.getElementById('ai-temperature').value = defaultAiSettings.temperature;
+        document.getElementById('ai-max-tokens').value = defaultAiSettings.maxTokens;
+    }
+}
+
+// Funkcja do zapisywania ustawień
+function saveAiSettings() {
+    const settings = {
+        temperature: parseFloat(document.getElementById('ai-temperature').value),
+        maxTokens: parseInt(document.getElementById('ai-max-tokens').value),
+        apiKey: document.getElementById('ai-api-key').value,
+        userIdentity: document.getElementById('ai-user-identity').value,
+        shortTermPlans: document.getElementById('ai-short-term-plans').value,
+        longTermPlans: document.getElementById('ai-long-term-plans').value,
+        responseTone: document.getElementById('ai-response-tone').value,
+        responseLength: document.getElementById('ai-response-length').value,
+        llmFocusType: document.getElementById('ai-llm-focus-type').value,
+        llmSubjectArea: document.getElementById('ai-llm-subject-area').value
+    };
+    
+    localStorage.setItem('aiSettings', JSON.stringify(settings));
+    return settings;
+}
+
+// Event listeners dla okna modalnego
+aiSettingsButton.addEventListener('click', () => {
+    loadAiSettings();
+    aiSettingsModal.style.display = 'block';
+    aiSettingsModal.classList.add('show');
+});
+
+closeAiSettingsModal.addEventListener('click', () => {
+    aiSettingsModal.classList.remove('show');
+    aiSettingsModal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target === aiSettingsModal) {
+        aiSettingsModal.classList.remove('show');
+        aiSettingsModal.style.display = 'none';
     }
 });
 
-// Helper function to add system messages
-function addSystemMessage(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message system';
-    messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+// Zapisywanie ustawień
+aiSettingsSave.addEventListener('click', async () => {
+    const settings = saveAiSettings();
+    
+    try {
+        const response = await fetch('/api/chat/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        });
+        
+        if (response.ok) {
+            // Zamknij modal
+            aiSettingsModal.classList.remove('show');
+            aiSettingsModal.style.display = 'none';
+            
+            // Pokaż powiadomienie o sukcesie
+            showMessage('Ustawienia zostały zapisane', 'success');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        showMessage('Błąd podczas zapisywania ustawień', 'error');
+    }
+});
+
+// Walidacja pól numerycznych
+document.getElementById('ai-temperature').addEventListener('input', (e) => {
+    const value = parseFloat(e.target.value);
+    if (value < 0) e.target.value = 0;
+    if (value > 2) e.target.value = 2;
+});
+
+document.getElementById('ai-max-tokens').addEventListener('input', (e) => {
+    const value = parseInt(e.target.value);
+    if (value < 1) e.target.value = 1;
+    if (value > 4096) e.target.value = 4096;
+});

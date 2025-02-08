@@ -13,15 +13,37 @@
         <div class="container_left">
         <!-- Container for AI chat on the left side -->
         <div class="ai-chat-container">
-            <h2>AI Chat</h2>
+       
+            <div class="model-switcher">
+                <h2>AI Chat</h2>
+                <select id="modelSelect" class="filter-category">
+                    <option value="chat">DeepSeek-V3 (Chat)</option>
+
+                    <option value="reasoner">DeepSeek-R1 (Reasoner)</option>
+                    
+                </select>
+                <div class="button-container">
+                    <button id="toggle-theme-button" class="action-button icon-button">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="Ai-settings-button" class="action-button icon-button">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
             <div class="chat-messages" id="chat-messages">
+
+
+
+
                 <!-- Messages will be added here -->
             </div>
             <div class="chat-input-container">
-                <input type="text" id="chat-input" class="input-field" placeholder="Napisz wiadomość...">
+                <textarea id="chat-input" class="input-field" placeholder="Napisz wiadomość..."></textarea>
                 <div class="chat-buttons">
                     <button id="send-message" class="action-button icon-button">
                         <i class="fas fa-paper-plane"></i>
+
                     </button>
                     <button id="clear-chat" class="action-button icon-button">
                         <i class="fas fa-trash-alt"></i>
@@ -29,15 +51,7 @@
                 </div>
             </div>
         </div>
-        <div class="container_settings"> <!-- container for settings under AI chat -->
-            <h2>Settings</h2>
-            <!-- Future settings elements will go here -->
-            <button id="chat-settings-button" class="action-button">Chat settings</button>
-            <button id="user-settings-button" class="action-button">User settings</button>
-            <!-- Button to toggle theme -->
-            <button id="toggle-theme-button" class="action-button">Toggle Dark/Light Theme</button>
-
-        </div>
+        
     </div>
     
     <div class="main-content">
@@ -193,7 +207,7 @@
 </div>
 
 <!-- Modal for editing -->
-<div id="edit-modal" class="modal" style="display: none;">
+<div id="edit-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2 id="modal-title">Edit</h2>
@@ -201,6 +215,47 @@
             <!-- Form content will be dynamically inserted -->
         </div>
         <button id="modal-save" class="action-button save-button">Save Changes</button>
+    </div>
+</div>
+
+<!-- Modal for AI Settings -->
+<div id="ai-settings-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span id="close-ai-settings-modal" class="close-modal">&times;</span>
+        <h2>Ustawienia AI</h2>
+        <form id="ai-settings-form">
+            <label for="ai-temperature">Temperature:</label>
+            <input type="number" id="ai-temperature" name="ai-temperature" step="0.1" value="0.7">
+            <br>
+            <label for="ai-max-tokens">Max Tokens:</label>
+            <input type="number" id="ai-max-tokens" name="ai-max-tokens" value="512">
+            <br>
+            <label for="ai-api-key">API Key:</label>
+            <input type="text" id="ai-api-key" name="ai-api-key">
+            <br>
+            <label for="ai-user-identity">User Identity:</label>
+            <input type="text" id="ai-user-identity" name="ai-user-identity">
+            <br>
+            <label for="ai-short-term-plans">Short Term Plans:</label>
+            <input type="text" id="ai-short-term-plans" name="ai-short-term-plans">
+            <br>
+            <label for="ai-long-term-plans">Long Term Plans:</label>
+            <input type="text" id="ai-long-term-plans" name="ai-long-term-plans">
+            <br>
+            <label for="ai-response-tone">Response Tone:</label>
+            <input type="text" id="ai-response-tone" name="ai-response-tone">
+            <br>
+            <label for="ai-response-length">Response Length:</label>
+            <input type="text" id="ai-response-length" name="ai-response-length">
+            <br>
+            <label for="ai-llm-focus-type">LLM Focus Type:</label>
+            <input type="text" id="ai-llm-focus-type" name="ai-llm-focus-type">
+            <br>
+            <label for="ai-llm-subject-area">LLM Subject Area:</label>
+            <input type="text" id="ai-llm-subject-area" name="ai-llm-subject-area">
+            <br>
+            <button type="button" id="ai-settings-save">Zapisz Ustawienia</button>
+        </form>
     </div>
 </div>
 

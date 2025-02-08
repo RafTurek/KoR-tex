@@ -22,35 +22,62 @@ class LLMInference:
         )
         self.model_type = model_type
         self.model = self.MODELS[model_type]["name"]
+        
+        # Domyślne ustawienia
+        self.temperature = 0.7
+        self.max_tokens = 512
+        self.top_p = 0.9
+        self.frequency_penalty = 0.0
+        self.presence_penalty = 0.0
+        
+        # Ustawienia personalizacji
+        self.user_identity = ""
+        self.short_term_plans = ""
+        self.long_term_plans = ""
+        self.response_tone = ""
+        self.response_length = ""
+        self.llm_focus_type = ""
+        self.llm_subject_area = ""
+        
+        # Inicjalizacja promptu systemowego na końcu
         self.system_prompt = self._get_system_prompt()
     
     def _get_system_prompt(self) -> str:
-        """Zwraca odpowiedni prompt systemowy w zależności od modelu"""
+        """Zwraca odpowiedni prompt systemowy w zależności od modelu i ustawień"""
+        base_prompt = ""
         if self.model_type == "chat":
-            return "Jesteś pomocnym asystentem. Odpowiadasz w języku polskim w sposób zwięzły i na temat. Pamiętasz o kontekście rozmowy."
+            base_prompt = "Jesteś pomocnym asystentem. Odpowiadasz w języku polskim w sposób zwięzły i na temat. Pamiętasz o kontekście rozmowy."
         else:
-            return """Jesteś pomocnym asystentem specjalizującym się w rozumowaniu i rozwiązywaniu problemów. 
+            base_prompt = """Jesteś pomocnym asystentem specjalizującym się w rozumowaniu i rozwiązywaniu problemów. 
 Zawsze odpowiadasz w języku polskim, krok po kroku wyjaśniając swój tok myślenia.
 Dla każdego problemu:
 1. Najpierw analizujesz i opisujesz problem
 2. Rozkładasz go na mniejsze części
 3. Rozwiązujesz każdą część osobno
 4. Łączysz rozwiązania w całość
-5. Sprawdzasz poprawność i podsumowujesz
-
-Formatuj swoją odpowiedź używając nagłówków:
-ANALIZA:
-[tutaj analiza problemu]
-
-ROZWIĄZANIE:
-1. [pierwszy krok]
-2. [drugi krok]
-...
-
-PODSUMOWANIE:
-[tutaj podsumowanie]
-
-Pamiętasz o kontekście rozmowy."""
+5. Sprawdzasz poprawność i podsumowujesz"""
+        
+        # Dodaj personalizację jeśli jest ustawiona
+        personalizations = []
+        if self.user_identity:
+            personalizations.append(f"Tożsamość użytkownika: {self.user_identity}")
+        if self.short_term_plans:
+            personalizations.append(f"Krótkoterminowe plany: {self.short_term_plans}")
+        if self.long_term_plans:
+            personalizations.append(f"Długoterminowe plany: {self.long_term_plans}")
+        if self.response_tone:
+            personalizations.append(f"Ton odpowiedzi: {self.response_tone}")
+        if self.response_length:
+            personalizations.append(f"Długość odpowiedzi: {self.response_length}")
+        if self.llm_focus_type:
+            personalizations.append(f"Typ skupienia: {self.llm_focus_type}")
+        if self.llm_subject_area:
+            personalizations.append(f"Obszar tematyczny: {self.llm_subject_area}")
+        
+        if personalizations:
+            base_prompt += "\n\nUstawienia personalizacji:\n" + "\n".join(personalizations)
+        
+        return base_prompt
 
     def switch_model(self, model_type: str) -> bool:
         """Przełącza model na inny typ"""
@@ -118,18 +145,14 @@ Pamiętaj o użyciu nagłówków: ANALIZA, ROZWIĄZANIE (z krokami), PODSUMOWANI
             print("[LLM] Wysyłanie zapytania do API...")
             start_time = datetime.now()
             
-            # Dostosuj parametry w zależności od modelu
-            temperature = 0.7 if self.model_type == "chat" else 0.9
-            max_tokens = 512 if self.model_type == "chat" else 1024
-            
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                top_p=0.9,
-                frequency_penalty=0.0,
-                presence_penalty=0.0,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                top_p=self.top_p,
+                frequency_penalty=self.frequency_penalty,
+                presence_penalty=self.presence_penalty,
                 stream=False
             )
             

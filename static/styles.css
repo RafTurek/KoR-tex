@@ -29,12 +29,13 @@ body {
 
 .container_left {
     position: relative;
-    width: 300px;
-    min-width: 300px;
+    width: 450px;
+    min-width: 450px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     height: calc(100vh - 20px); /* Wysokość viewportu minus padding kontenera */
+
 }
 
 /* AI chat container styling */
@@ -49,7 +50,21 @@ body {
     gap: 10px;
 }
 
+/* model switcher styling */
+.model-switcher {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* button container styling */
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
 /* container for settings under AI chat */
+
 .container_settings {
     background-color: #d8d3c5;
     padding: 20px;
@@ -174,6 +189,7 @@ body {
 
 /* Button styling */
 .action-button {
+    display: flex;
     background-color: #bfad96; /* Green background */
     color: white; /* White text */
     border: 1px solid #6f6f6e; /* No border */
@@ -711,7 +727,7 @@ body.dark-mode .filter-category {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
     min-height: 300px;
-    max-height: calc(100vh - 400px);
+    
 }
 
 .chat-message {
@@ -737,9 +753,10 @@ body.dark-mode .filter-category {
 /* Chat input styling */
 .chat-input-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     padding: 10px;
+
 }
 
 #chat-input {
@@ -750,13 +767,13 @@ body.dark-mode .filter-category {
     font-size: 14px;
     background-color: #e8e8e0;
     transition: all 0.3s ease;
-    min-height: 50px; /* Minimalna wysokość */
+    min-height: 120px; /* Minimalna wysokość */
 }
 
 .chat-buttons {
     display: flex;
     gap: 10px;
-    justify-content: flex-end; /* Przyciski po prawej stronie */
+    flex-direction: column;
 }
 
 .icon-button {
@@ -813,4 +830,115 @@ body.dark-mode #clear-chat {
 
 body.dark-mode #clear-chat:hover {
     background-color: #722f2f;
+}
+
+/* Style dla formularza ustawień AI */
+#ai-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#ai-settings-form label {
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+#ai-settings-form input {
+    padding: 8px;
+    border: 1px solid #6f6f6e;
+    border-radius: 5px;
+    background-color: #e8e8e0;
+    font-size: 14px;
+}
+
+#ai-settings-form input[type="number"] {
+    width: 100px;
+}
+
+#ai-settings-save {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #8fb339;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+#ai-settings-save:hover {
+    background-color: #7a9830;
+}
+
+/* Dark mode dla formularza ustawień AI */
+body.dark-mode #ai-settings-form input {
+    background-color: #5b5b5b;
+    color: #f9f9f9;
+    border-color: #666;
+}
+
+body.dark-mode #ai-settings-save {
+    background-color: #6b8a2c;
+}
+
+body.dark-mode #ai-settings-save:hover {
+    background-color: #597324;
+}
+
+/* Animacja dla modala */
+@keyframes modalFadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+.modal.show {
+    display: block;
+    animation: modalFadeIn 0.3s;
+}
+
+/* Style dla powiadomień */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    z-index: 1100;
+    animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-out 2.5s forwards;
+}
+
+.message-success {
+    background-color: #4CAF50;
+}
+
+.message-error {
+    background-color: #f44336;
+}
+
+.message-info {
+    background-color: #2196F3;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
