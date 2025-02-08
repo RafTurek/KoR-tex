@@ -10,11 +10,9 @@ from flask_limiter.util import get_remote_address
 from typing import List, Dict
 from dataclasses import dataclass, field
 import json
-from sentence_transformers import SentenceTransformer
-import numpy as np
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+import random  # Dodajemy import random
 from backend.inference import LLMInference
+import os
 
 app = Flask(__name__)
 
@@ -49,7 +47,9 @@ class ChatMessage:
 
 class ChatManager:
     def __init__(self):
-        self.llm = LLMInference()
+        self.llm = LLMInference(
+            api_key=os.environ.get("DEEPSEEK_API_KEY")
+        )
         self.chat_histories: Dict[str, List[ChatMessage]] = {}
         self.max_history = 10
         
@@ -94,9 +94,9 @@ class ChatManager:
             else:
                 # Fallback do prostych odpowiedzi
                 if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
-                    response = np.random.choice(self.fallback_responses['greeting'])
+                    response = random.choice(self.fallback_responses['greeting'])
                 else:
-                    response = np.random.choice(self.fallback_responses['default'])
+                    response = random.choice(self.fallback_responses['default'])
             
             # Zapisz w historii
             history.append(ChatMessage(role="user", content=prompt))
@@ -109,8 +109,8 @@ class ChatManager:
             print(f"Błąd generowania odpowiedzi: {str(e)}")
             # Fallback do prostych odpowiedzi
             if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
-                return np.random.choice(self.fallback_responses['greeting'])
-            return np.random.choice(self.fallback_responses['default'])
+                return random.choice(self.fallback_responses['greeting'])
+            return random.choice(self.fallback_responses['default'])
 
 # Inicjalizacja chat managera
 chat_manager = ChatManager()
@@ -603,10 +603,49 @@ def create_from_chat():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Nowe endpointy dla zarządzania modelami
+@app.route('/api/chat/models', methods=['GET'])
+def get_available_models():
+    """Zwraca listę dostępnych modeli"""
+    return jsonify(chat_manager.llm.get_available_models())
+
+@app.route('/api/chat/model', methods=['PUT'])
+def switch_model():
+    """Przełącza aktualny model"""
+    data = request.json
+    model_type = data.get('model_type')
+    
+    if not model_type:
+        return jsonify({'error': 'Missing model_type parameter'}), 400
+        
+    if chat_manager.llm.switch_model(model_type):
+        return jsonify({
+            'message': f'Successfully switched to {model_type} model',
+            'model_info': chat_manager.llm.MODELS[model_type]
+        })
+    else:
+        return jsonify({'error': 'Invalid model type'}), 400
+
 # Dodaj inicjalizację chat managera przy starcie aplikacji
 def create_app():
     with app.app_context():
-        init_db()
+        # Inicjalizacja bazy danych
+        db.create_all()
+        
+        # Sprawdź czy #inbox już istnieje
+        inbox = Project.query.filter_by(tag='#inbox').first()
+        if not inbox:
+            print("Creating default #inbox project...")
+            inbox = Project(tag='#inbox', name='Inbox')
+            db.session.add(inbox)
+            try:
+                db.session.commit()
+                print("Default #inbox project created successfully")
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error creating default #inbox project: {str(e)}")
+        
+        # Inicjalizacja chat managera
         chat_manager.initialize_model()
     return app
 
