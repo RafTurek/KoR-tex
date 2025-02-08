@@ -224,37 +224,102 @@
         <span id="close-ai-settings-modal" class="close-modal">&times;</span>
         <h2>Ustawienia AI</h2>
         <form id="ai-settings-form">
+            <!-- Temperature setting -->
             <label for="ai-temperature">Temperature:</label>
             <input type="number" id="ai-temperature" name="ai-temperature" step="0.1" value="0.7">
+            <small>
+                **Temperature:** Controls AI response randomness. 
+                Closer to 0 is more predictable, closer to 1 more creative. 
+                Use lower for precision, higher for brainstorming.
+            </small>
             <br>
+
+            <!-- Max Tokens setting -->
             <label for="ai-max-tokens">Max Tokens:</label>
             <input type="number" id="ai-max-tokens" name="ai-max-tokens" value="512">
+            <small>
+                **Max Tokens:** Sets max length of AI response. 
+                More tokens allow detailed answers but may increase response time.
+            </small>
             <br>
+
+            <!-- API Key -->
             <label for="ai-api-key">API Key:</label>
             <input type="text" id="ai-api-key" name="ai-api-key">
+            <small>
+                **API Key:** Enter your Language Model provider API key (e.g., DeepSeek). 
+                Required for AI authentication and service use. AI functions will not work without it.
+            </small>
             <br>
+
+            <!-- User Identity -->
             <label for="ai-user-identity">User Identity:</label>
             <input type="text" id="ai-user-identity" name="ai-user-identity">
             <br>
+            <small>
+                **User Identity:** Define your identity or role. 
+                Helps AI personalize responses, considering your context and preferences. 
+                E.g., "I am a teacher" or "I am a programmer."
+            </small>
+            <br>
+
+            <!-- Short Term Plans -->
             <label for="ai-short-term-plans">Short Term Plans:</label>
-            <input type="text" id="ai-short-term-plans" name="ai-short-term-plans">
+            <textarea id="ai-short-term-plans" name="ai-short-term-plans" rows="3" placeholder="Describe your short term plans..." class="input-field"></textarea>
+            <small>
+                **Short Term Plans:** Describe your short-term plans and goals. 
+                Helps AI understand current conversation context and tailor responses to your immediate needs.
+            </small>
             <br>
+
+            <!-- Long Term Plans -->
             <label for="ai-long-term-plans">Long Term Plans:</label>
-            <input type="text" id="ai-long-term-plans" name="ai-long-term-plans">
+            <textarea id="ai-long-term-plans" name="ai-long-term-plans" rows="3" placeholder="Describe your long term plans..." class="input-field"></textarea>
+            <small>
+                **Long Term Plans:** Present your long-term goals and aspirations. 
+                Gives AI broader context for strategic and thoughtful responses aligned with your vision.
+            </small>
             <br>
+
+            <!-- Response Tone -->
             <label for="ai-response-tone">Response Tone:</label>
-            <input type="text" id="ai-response-tone" name="ai-response-tone">
+            <select id="ai-response-tone" name="ai-response-tone" class="filter-category">
+                <option value="Neutral" selected>Neutral</option>
+                <option value="Friendly">Friendly</option>
+                <option value="Professional">Professional</option>
+                <option value="Casual">Casual</option>
+            </select>
+            <small>
+                **Response Tone:** Choose preferred AI response tone: 
+                Neutral, Friendly, Professional, or Casual. 
+                Adjust tone to match your interaction style.
+            </small>
             <br>
+
+            <!-- Response Length -->
             <label for="ai-response-length">Response Length:</label>
-            <input type="text" id="ai-response-length" name="ai-response-length">
+            <select id="ai-response-length" name="ai-response-length" class="filter-category">
+                <option value="Short" selected>Short</option>
+                <option value="Medium">Medium</option>
+                <option value="Long">Long</option>
+            </select>
+            <small>
+                **Response Length:** Specify desired AI response length. 
+                Choose Short, Medium, or Long based on preferred detail and conciseness.
+            </small>
             <br>
-            <label for="ai-llm-focus-type">LLM Focus Type:</label>
-            <input type="text" id="ai-llm-focus-type" name="ai-llm-focus-type">
-            <br>
+
+            <!-- LLM Subject Area -->
             <label for="ai-llm-subject-area">LLM Subject Area:</label>
-            <input type="text" id="ai-llm-subject-area" name="ai-llm-subject-area">
+            <input type="text" id="ai-llm-subject-area" name="ai-llm-subject-area" placeholder="e.g. Technology, Science">
+            <small>
+                **LLM Subject Area:** Specify subject area for AI focus. 
+                Tailors model to specific knowledge or interest domain, e.g. 
+                "Technology," "Science," "Marketing."
+            </small>
             <br>
-            <button type="button" id="ai-settings-save">Zapisz Ustawienia</button>
+
+            <button type="button" id="ai-settings-save">Save Settings</button>
         </form>
     </div>
 </div>

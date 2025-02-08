@@ -626,34 +626,41 @@ def switch_model():
     else:
         return jsonify({'error': 'Invalid model type'}), 400
 
-# Endpoint do zapisywania ustawień AI
+# Endpoint to save AI settings
 @app.route('/api/chat/settings', methods=['POST'])
 def save_chat_settings():
-    """Zapisuje ustawienia AI dla czatu"""
+    """Save AI settings.
+
+    Expected JSON fields:
+    - temperature: float between 0 and 2 (controls randomness)
+    - maxTokens: integer between 1 and 4096 (max response length)
+    - apiKey: string, API key for authentication
+    - userIdentity: string representing the user's identity
+    - shortTermPlans: string (multi-line) for short term plans
+    - longTermPlans: string (multi-line) for long term plans
+    - responseTone: string (e.g., 'Neutral', 'Friendly', 'Professional', 'Casual')
+    - responseLength: string (e.g., 'Short', 'Medium', 'Long')
+    - llmSubjectArea: string describing the subject area
+    """
     data = request.json
-    
     try:
-        # Walidacja danych
         temperature = float(data.get('temperature', 0.7))
         max_tokens = int(data.get('maxTokens', 512))
         
-        # Sprawdź zakresy
         if not 0 <= temperature <= 2:
             return jsonify({'error': 'Temperature must be between 0 and 2'}), 400
         if not 1 <= max_tokens <= 4096:
             return jsonify({'error': 'Max tokens must be between 1 and 4096'}), 400
         
-        # Aktualizuj ustawienia w chat managerze
+        # Update settings in chat manager
         chat_manager.llm.temperature = temperature
         chat_manager.llm.max_tokens = max_tokens
         
-        # Zapisz pozostałe ustawienia
         chat_manager.user_identity = data.get('userIdentity', '')
         chat_manager.short_term_plans = data.get('shortTermPlans', '')
         chat_manager.long_term_plans = data.get('longTermPlans', '')
         chat_manager.response_tone = data.get('responseTone', '')
         chat_manager.response_length = data.get('responseLength', '')
-        chat_manager.llm_focus_type = data.get('llmFocusType', '')
         chat_manager.llm_subject_area = data.get('llmSubjectArea', '')
         
         return jsonify({
@@ -666,8 +673,8 @@ def save_chat_settings():
                 'longTermPlans': chat_manager.long_term_plans,
                 'responseTone': chat_manager.response_tone,
                 'responseLength': chat_manager.response_length,
-                'llmFocusType': chat_manager.llm_focus_type,
                 'llmSubjectArea': chat_manager.llm_subject_area
+
             }
         })
     except ValueError as e:

@@ -671,13 +671,16 @@ body.dark-mode .note-project-tag {
 .modal-content {
     position: relative;
     background-color: #d8d3c5;
-    margin: 15% auto;
+    margin: 5% auto;
     padding: 20px;
     width: 60%;
     max-width: 500px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-height: 650px;
+    overflow-y: auto;
 }
+
 
 .close-modal {
     position: absolute;

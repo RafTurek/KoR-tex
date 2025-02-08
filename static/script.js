@@ -767,7 +767,6 @@ const defaultAiSettings = {
     longTermPlans: '',
     responseTone: '',
     responseLength: '',
-    llmFocusType: '',
     llmSubjectArea: ''
 };
 
@@ -784,7 +783,6 @@ function loadAiSettings() {
         document.getElementById('ai-long-term-plans').value = settings.longTermPlans;
         document.getElementById('ai-response-tone').value = settings.responseTone;
         document.getElementById('ai-response-length').value = settings.responseLength;
-        document.getElementById('ai-llm-focus-type').value = settings.llmFocusType;
         document.getElementById('ai-llm-subject-area').value = settings.llmSubjectArea;
     } else {
         // Ustaw wartości domyślne
@@ -804,7 +802,6 @@ function saveAiSettings() {
         longTermPlans: document.getElementById('ai-long-term-plans').value,
         responseTone: document.getElementById('ai-response-tone').value,
         responseLength: document.getElementById('ai-response-length').value,
-        llmFocusType: document.getElementById('ai-llm-focus-type').value,
         llmSubjectArea: document.getElementById('ai-llm-subject-area').value
     };
     
