@@ -293,6 +293,70 @@ def create_task():
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
+@app.route('/api/add_ai_task', methods=['POST'])
+def add_ai_task():
+    '''
+    Endpoint to add new task using AI
+    Recevies task data in JSON format and prints it to the console
+    '''
+    task_data = request.json
+    if not task_data or 'content' not in task_data:
+        return jsonify({'error': 'Content is required'}), 400
+    
+    content = task_data['content']
+    project_tag = task_data.get('project_tag', '#inbox') #default project
+    category = task_data.get('category', '')
+    priority = task_data.get('priority', '')
+    deadline_str = task_data.get('deadline', None) # Deadline as string from JSON
+    deadline = None # Initialize deadline as None
+
+    #Converts string deadline to datetime object
+    if deadline_str:
+        try:
+            deadline = datetime.fromisoformat(deadline_str)
+        except ValueError:
+            return jsonify({'error': 'Invalid deadline format'}), 400
+    
+    # Search for project with given project_tag or make a new one if it doesn't exist (if project_tag is not #inbox)
+    project = Project.query.filter_by(tag=project_tag).first()
+    if not project and project_tag != '#inbox':
+        project = Project(tag=project_tag, name=project_tag.replace('#', ''))
+        db.session.add(project)
+        try:
+            db.session.commit() # Commit the project to the database to retrieve its ID
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Failed to create project: {str(e)}'}), 400
+    
+    if not project: # If project still doesn't exist (for example #imbox not found)
+        project = Project.query.filter_by(tag='#inbox').first()
+        if not project: # Emergency create #inbox project
+            project = Project(tag='#inbox', name='Inbox')
+            db.session.add(project)
+            db.session.commit()
+
+    # Create new task
+    task = Task(
+        content=content,
+        category=category,
+        priority=priority,
+        deadline=deadline,
+        project_id=project.id # Use the project ID to link the task to the project
+    )
+
+    db.session.add(task)
+    try:
+        db.session.commit()
+        return jsonify({
+            'message': 'Task added successfully',
+            'task_id': task.id # Return the task ID to the client
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+
+
 # Endpoint do przenoszenia notatek między projektami
 @app.route('/api/notes/<int:note_id>/move', methods=['PATCH'])
 def move_note(note_id):

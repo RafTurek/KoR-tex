@@ -55,6 +55,7 @@ class Task(db.Model):
     # Klucz obcy do projektu
     project_id = db.Column(Integer, ForeignKey('projects.id'), nullable=False)
     
+    
     # Relacja do podzadań
     subtasks = relationship('Subtask', backref='task', lazy=True, cascade='all, delete-orphan')
     
