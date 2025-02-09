@@ -13,12 +13,14 @@ import json
 import random  # Dodajemy import random
 from backend.inference import LLMInference
 import os
+from backend.inference import LLMInference
 
 app = Flask(__name__)
 
 # Konfiguracja bazy danych
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rafpad.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # Inicjalizacja bazy danych
 db.init_app(app)
@@ -82,13 +84,14 @@ class ChatManager:
             del self.chat_histories[session_id]
 
     def generate_response(self, prompt: str, session_id: str, context: dict = None) -> str:
-        """Generuje odpowiedź używając modelu LLM"""
+        """Generates a response using the LLM model"""
         try:
-            # Pobierz historię czatu
+            # Get chat history
             history = self.chat_histories.get(session_id, [])
             history_dicts = [msg.to_dict() for msg in history]
             
-            # Generuj odpowiedź
+
+            # Generate response using self.llm.generate_response()
             if self.llm.model is not None:
                 response = self.llm.generate_response(prompt, history_dicts, context)
             else:
@@ -111,6 +114,29 @@ class ChatManager:
             if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
                 return random.choice(self.fallback_responses['greeting'])
             return random.choice(self.fallback_responses['default'])
+
+    def generate_task_content_with_LLM(self, prompt: str) -> str:
+        """
+        Generates task content using DeepSeek LLM.
+
+        Args:
+        prompt (str): The prompt to send to DeepSeek.
+
+        Returns:
+        str: The generated task content from DeepSeek, or None if there was an error.
+        """
+        try:
+            response = self.generate_response(prompt, session_id="task_generation_session")
+            if response and response.strip():
+                return response.strip()
+            else:
+                print("[generate_task_content_with_LLM] ChatManager returned empty or invalid response")
+                return None
+        except Exception as e:
+            print(f"[generate_task_content_with_LLM] Error: calling ChatManager: {str(e)}")
+            return None
+
+
 
 # Inicjalizacja chat managera
 chat_manager = ChatManager()
@@ -296,14 +322,19 @@ def create_task():
 @app.route('/api/add_ai_task', methods=['POST'])
 def add_ai_task():
     '''
-    Endpoint to add new task using AI
-    Recevies task data in JSON format and prints it to the console
+    Endpoint to add new task created by AI (LLM).
+    Recevies a prompt in JSON format, uses LLM to generate task content,
+    then adds the task to the database.
     '''
     task_data = request.json
-    if not task_data or 'content' not in task_data:
-        return jsonify({'error': 'Content is required'}), 400
+    if not task_data or 'prompt' not in task_data:
+        return jsonify({'error': 'Prompt is required'}), 400
     
-    content = task_data['content']
+    prompt = task_data['prompt']
+    generated_content = chat_manager.generate_task_content_with_LLM(prompt)
+    if not generated_content:
+        return jsonify({'error': 'Failed to generate task content'}), 500
+    
     project_tag = task_data.get('project_tag', '#inbox') #default project
     category = task_data.get('category', '')
     priority = task_data.get('priority', '')
@@ -335,20 +366,21 @@ def add_ai_task():
             db.session.add(project)
             db.session.commit()
 
-    # Create new task
+    # Create new task with generated content    
     task = Task(
-        content=content,
+        content=generated_content,
         category=category,
         priority=priority,
         deadline=deadline,
         project_id=project.id # Use the project ID to link the task to the project
+
     )
 
     db.session.add(task)
     try:
         db.session.commit()
         return jsonify({
-            'message': 'Task added successfully',
+            'message': 'AI task added successfully',
             'task_id': task.id # Return the task ID to the client
         }), 201
     except Exception as e:
