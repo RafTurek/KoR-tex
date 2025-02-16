@@ -10,10 +10,12 @@ from flask_limiter.util import get_remote_address
 from typing import List, Dict
 from dataclasses import dataclass, field
 import json
-import random  # Dodajemy import random
+import random
 from backend.inference import LLMInference
 import os
-from backend.inference import LLMInference
+
+# Import ChatManager from the new module
+from core.chat_manager import ChatManager
 
 app = Flask(__name__)
 
@@ -47,97 +49,6 @@ class ChatMessage:
             'timestamp': self.timestamp.isoformat()
         }
 
-class ChatManager:
-    def __init__(self):
-        self.llm = LLMInference(
-            api_key=os.environ.get("DEEPSEEK_API_KEY")
-        )
-        self.chat_histories: Dict[str, List[ChatMessage]] = {}
-        self.max_history = 10
-        
-        # Fallback responses gdy model nie jest dostępny
-        self.fallback_responses = {
-            'greeting': [
-                "Cześć! W czym mogę pomóc?",
-                "Witaj! Jak mogę Ci pomóc?",
-                "Dzień dobry! Co mogę dla Ciebie zrobić?"
-            ],
-            'default': [
-                "Rozumiem. Co dalej?",
-                "Jak mogę pomóc?",
-                "Słucham, co mogę zrobić?"
-            ]
-        }
-
-    def initialize_model(self):
-        """Inicjalizacja modelu LLM"""
-        return self.llm.initialize()
-
-    def get_chat_history(self, session_id: str) -> List[dict]:
-        """Pobiera historię czatu dla danej sesji"""
-        history = self.chat_histories.get(session_id, [])
-        return [msg.to_dict() for msg in history]
-
-    def clear_chat_history(self, session_id: str):
-        """Czyści historię czatu dla danej sesji"""
-        if session_id in self.chat_histories:
-            del self.chat_histories[session_id]
-
-    def generate_response(self, prompt: str, session_id: str, context: dict = None) -> str:
-        """Generates a response using the LLM model"""
-        try:
-            # Get chat history
-            history = self.chat_histories.get(session_id, [])
-            history_dicts = [msg.to_dict() for msg in history]
-            
-
-            # Generate response using self.llm.generate_response()
-            if self.llm.model is not None:
-                response = self.llm.generate_response(prompt, history_dicts, context)
-            else:
-                # Fallback do prostych odpowiedzi
-                if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
-                    response = random.choice(self.fallback_responses['greeting'])
-                else:
-                    response = random.choice(self.fallback_responses['default'])
-            
-            # Zapisz w historii
-            history.append(ChatMessage(role="user", content=prompt))
-            history.append(ChatMessage(role="assistant", content=response))
-            self.chat_histories[session_id] = history[-self.max_history:]
-            
-            return response
-            
-        except Exception as e:
-            print(f"Błąd generowania odpowiedzi: {str(e)}")
-            # Fallback do prostych odpowiedzi
-            if any(word in prompt.lower() for word in ['cześć', 'hej', 'witaj']):
-                return random.choice(self.fallback_responses['greeting'])
-            return random.choice(self.fallback_responses['default'])
-
-    def generate_task_content_with_LLM(self, prompt: str) -> str:
-        """
-        Generates task content using DeepSeek LLM.
-
-        Args:
-        prompt (str): The prompt to send to DeepSeek.
-
-        Returns:
-        str: The generated task content from DeepSeek, or None if there was an error.
-        """
-        try:
-            response = self.generate_response(prompt, session_id="task_generation_session")
-            if response and response.strip():
-                return response.strip()
-            else:
-                print("[generate_task_content_with_LLM] ChatManager returned empty or invalid response")
-                return None
-        except Exception as e:
-            print(f"[generate_task_content_with_LLM] Error: calling ChatManager: {str(e)}")
-            return None
-
-
-
 # Inicjalizacja chat managera
 chat_manager = ChatManager()
 
@@ -148,7 +59,7 @@ _is_first_request = True
 def initialize_on_first_request():
     global _is_first_request
     if _is_first_request:
-        chat_manager.initialize_model()
+        # Removed initialize_model call since it's no longer needed
         _is_first_request = False
 
 @app.route('/')
@@ -797,8 +708,7 @@ def create_app():
                 db.session.rollback()
                 print(f"Error creating default #inbox project: {str(e)}")
         
-        # Inicjalizacja chat managera
-        chat_manager.initialize_model()
+        # Removed chat_manager.initialize_model() call since it's not needed
     return app
 
 if __name__ == '__main__':

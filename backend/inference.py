@@ -43,21 +43,17 @@ class LLMInference:
         self.system_prompt = self._get_system_prompt()
     
     def _get_system_prompt(self) -> str:
-        """Zwraca odpowiedni prompt systemowy w zależności od modelu i ustawień"""
+        """Returns the appropriate system prompt based on the model and settings."""
         base_prompt = ""
         if self.model_type == "chat":
-            base_prompt = "Jesteś pomocnym asystentem. Odpowiadasz w języku polskim w sposób zwięzły i na temat. Pamiętasz o kontekście rozmowy."
+            base_prompt = ("Jesteś pomocnym asystentem. Odpowiadasz w języku polskim w sposób zwięzły i na temat. Pamiętasz o kontekście rozmowy.\n\n"
+                           "Dostępne narzędzia:\n"
+                           "[add_task]: Użyj tego narzędzia, aby dodać nowe zadanie. Formatuj polecenie jako: [add_task]: \"treść zadania\".\n"
+                           "Przykład: Jeśli chcesz dodać zadanie 'kupić mleko', odpowiedz: [add_task]: \"kupić mleko\".")
         else:
-            base_prompt = """Jesteś pomocnym asystentem specjalizującym się w rozumowaniu i rozwiązywaniu problemów. 
-Zawsze odpowiadasz w języku polskim, krok po kroku wyjaśniając swój tok myślenia.
-Dla każdego problemu:
-1. Najpierw analizujesz i opisujesz problem
-2. Rozkładasz go na mniejsze części
-3. Rozwiązujesz każdą część osobno
-4. Łączysz rozwiązania w całość
-5. Sprawdzasz poprawność i podsumowujesz"""
+            base_prompt = "Jesteś pomocnym asystentem specjalizującym się w rozumieniu i rozwiązywaniu problemów. \nZawsze odpowiadasz w języku polskim, krok po kroku wyjaśniając swój tok myślenia.\nDla każdego problemu:\n1. Najpierw analizujesz i opisujesz problem\n2. Rozkładasz go na mniejsze części\n3. Rozwiązujesz każdą część osobno\n4. Łączysz rozwiązania w całość\n5. Sprawdzasz poprawność i podsumowujesz"
         
-        # Dodaj personalizację jeśli jest ustawiona
+        # Add personalization if set
         personalizations = []
         if self.user_identity:
             personalizations.append(f"Tożsamość użytkownika: {self.user_identity}")

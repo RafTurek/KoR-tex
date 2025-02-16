@@ -43,3 +43,78 @@ Po zaimplementowaniu podstawowej funkcjonalności dodawania zadań przez LLM, mo
 ## Podsumowanie
 
 Dzisiejszy dzień był produktywny, udało nam się rozwiązać kluczowe problemy z backendem API.  Jutro skupimy się na integracji LLM z systemem dodawania zadań. Jesteśmy podekscytowani dalszym rozwojem RAF_PAD i możliwościami, jakie daje nam wykorzystanie LLM!
+
+
+
+----------------------------------
+
+Zdecydowanie, musimy myśleć przyszłościowo i uwzględnić te bardziej zaawansowane możliwości zarządzania zadaniami. To, co wymieniłeś, to kluczowe funkcjonalności, które sprawią, że RAF_PAD będzie naprawdę użyteczny.
+
+Rozważmy te przyszłe możliwości i jak możemy je zaplanować w kontekście integracji z LLM:
+
+## Przyszłe Możliwości Zarządzania Zadaniami z LLM
+
+### Rozszerzony Zestaw Narzędzi (Komend):
+
+* [modify_task]: Modyfikacja istniejącego zadania. Będziemy potrzebować sposobu na identyfikację zadania (np. ID zadania, fragment treści) oraz parametrów do zmiany (treść, kategoria, priorytet, deadline, projekt).
+* [move_task]: Przenoszenie zadania między projektami. Wymaga identyfikacji zadania i projektu docelowego.
+* [set_deadline]: Ustawianie lub zmiana terminu realizacji zadania. Wymaga identyfikacji zadania i daty deadline.
+* [set_priority]: Ustawianie lub zmiana priorytetu zadania. Wymaga identyfikacji zadania i poziomu priorytetu (niski, średni, wysoki).
+* [add_recurring_task]: Dodawanie zadania cyklicznego. Będzie wymagało opisu zadania, częstotliwości (np. codziennie, tygodniowo, miesięcznie), dni tygodnia/miesiąca (jeśli dotyczy).
+* [decompose_task]: Rozkładanie zadania na mniejsze podzadania. Wymaga opisu głównego zadania i ewentualnie liczby podzadań lub kryteriów podziału.
+
+### Struktura Komend:
+
+Aby obsłużyć więcej parametrów, warto rozważyć bardziej ustrukturyzowaną formę komend, np. coś w stylu JSON-a w tekście (lub prostszy format klucz-wartość):
+
+Przykłady:
+* Modyfikacja treści zadania:
+* Ustawienie deadline:
+* Dodanie zadania cyklicznego:
+
+### Identyfikacja Zadań:
+
+Przy modyfikacji, przenoszeniu, zmianie deadline'u czy priorytetu, musimy jednoznacznie identyfikować zadanie, którego dotyczy operacja. Możliwości:
+* ID zadania: Najbardziej precyzyjne, ale użytkownik zazwyczaj nie zna ID.
+* Fragment treści zadania: Możemy szukać zadania po fragmencie treści. Trzeba uważać na zadania o podobnej treści. Można poprosić o potwierdzenie, jeśli znajdziemy kilka pasujących.
+* Kombinacja projektu i treści: Wyszukiwanie zadania w konkretnym projekcie po treści.
+
+### Inteligencja LLM w Rozkładaniu Zadań i Planowaniu:
+
+* Automatyczne rozkładanie zadań: Gdy użytkownik poda ogólne zadanie (np. "napisz aplikację"), LLM może zaproponować rozbicie go na mniejsze, bardziej konkretne etapy.
+* Sugestie podzadań: LLM może sugerować podzadania na podstawie kontekstu zadania i wiedzy o podobnych projektach.
+* Dopytywanie o szczegóły: Jeśli LLM nie ma wystarczająco informacji, aby wykonać zadanie (np. dodać zadanie cykliczne bez określenia dni tygodnia), powinien dopytać użytkownika o brakujące szczegóły.
+* Uczenie się preferencji użytkownika: W przyszłości LLM mógłby uczyć się preferencji użytkownika dotyczących rozkładania zadań, priorytetów, kategorii, itp.
+
+### Interakcja z Użytkownikiem:
+
+* Potwierdzenia: Po wykonaniu komendy (np. dodaniu zadania, zmianie deadline'u), system powinien dać użytkownikowi potwierdzenie, że operacja się powiodła.
+* Komunikaty o błędach: Jeśli operacja się nie powiedzie (np. nie znaleziono zadania o podanej treści), system powinien wyświetlić jasny komunikat o błędzie.
+* Interaktywne dopytywanie: W przypadku niejasnych zapytań, LLM powinien prowadzić interaktywną rozmowę z użytkownikiem, aby uzyskać wszystkie potrzebne informacje.
+
+### Plan Działania (Kolejność Implementacji)
+
+#### MVP - Podstawowe Narzędzia:
+
+Zacznijmy od implementacji [modify_task], [move_task], [set_deadline], [set_priority] w podstawowej formie (np. identyfikacja zadania po ID lub dokładnej treści, proste parametry).
+Użyjmy prostego formatu komend, np. SYSTEM_COMMAND: [narzędzie] { "parametr": "wartość", ... }.
+Skupmy się na podstawowej funkcjonalności - dodawanie, modyfikacja, proste parametry.
+
+#### Rozszerzona Identyfikacja Zadań:
+
+* Wprowadźmy bardziej elastyczne metody identyfikacji zadań (wyszukiwanie po fragmencie treści, w projekcie).
+* Dodajmy mechanizmy potwierdzania wyboru zadania, jeśli znajdziemy kilka pasujących.
+
+#### Zadania Cykliczne i Rozkładanie Zadań:
+
+* Zaimplementujmy [add_recurring_task] i [decompose_task].
+* Rozbudujmy format komend, aby obsługiwał bardziej złożone parametry (np. dni tygodnia, liczba podzadań).
+* Zacznijmy eksperymentować z automatycznym sugerowaniem rozkładania zadań przez LLM.
+
+#### Zaawansowana Inteligencja i Interakcja:
+
+* Rozwińmy zdolność LLM do dopytywania o szczegóły i prowadzenia interaktywnej rozmowy.
+* Zaimplementujmy potwierdzenia i komunikaty o błędach w interfejsie użytkownika.
+* Zacznijmy pracować nad uczeniem się preferencji użytkownika przez LLM.
+
+## Podsumowanie
