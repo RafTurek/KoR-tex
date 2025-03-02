@@ -1,8 +1,8 @@
-# RAF_PAD - Plan Rozwoju i Monetyzacji
+# Kortex - Plan Rozwoju i Monetyzacji
 
 ## Przegląd
 
-Ten dokument zawiera plan rozwoju RAF_PAD w celu szybkiej monetyzacji i wprowadzenia na rynek. Plan podzielony jest na etapy, które można realizować równolegle w zależności od dostępnych zasobów.
+Ten dokument zawiera plan rozwoju Kortex w celu szybkiej monetyzacji i wprowadzenia na rynek. Plan podzielony jest na etapy, które można realizować równolegle w zależności od dostępnych zasobów.
 
 ## Faza 1: Przygotowanie Fundamentów (2-3 tygodnie)
 
@@ -14,8 +14,9 @@ Ten dokument zawiera plan rozwoju RAF_PAD w celu szybkiej monetyzacji i wprowadz
 - [ ] Integracja OAuth (Google, GitHub)
 - [ ] System ról (free, premium, admin)
 
-### Migracja Bazy Danych
-- [ ] Przejście z SQLite na PostgreSQL
+### Infrastruktura Bazy Danych
+- [ ] Implementacja PostgreSQL (lub SQLite z możliwością migracji)
+- [ ] Modele danych dla zadań i notatek
 - [ ] Struktura dla wielu użytkowników
 - [ ] Indeksy i optymalizacja
 - [ ] Kopie zapasowe i odzyskiwanie
@@ -33,6 +34,22 @@ Ten dokument zawiera plan rozwoju RAF_PAD w celu szybkiej monetyzacji i wprowadz
 - [ ] CI/CD pipeline
   - [ ] Automatyczne wdrażanie po pushach do main/production
   - [ ] Testy automatyczne przed wdrożeniem
+
+### Interfejs Użytkownika
+- [ ] Projekt i implementacja UI
+  - [ ] Strona główna/dashboard
+  - [ ] Widok listy zadań
+  - [ ] Widok notatek
+  - [ ] Formularz dodawania/edycji zadań
+  - [ ] Formularz dodawania/edycji notatek
+- [ ] Responsywny design
+- [ ] Podstawowe interakcje JavaScript
+
+### Podstawowa Integracja AI
+- [ ] Implementacja serwisu AI
+- [ ] Integracja z DeepSeek lub innym dostawcą LLM
+- [ ] Podstawowe funkcje AI dla zadań i notatek
+- [ ] Prosty interfejs chatu z AI
 
 ## Faza 2: Funkcjonalność Premium (2-3 tygodnie)
 
@@ -183,30 +200,30 @@ Ten dokument zawiera plan rozwoju RAF_PAD w celu szybkiej monetyzacji i wprowadz
 services:
   # Backend webapp
   - type: web
-    name: rafpad-backend
+    name: kortex-backend
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
-      - key: DEEPSEEK_API_KEY
+      - key: AI_API_KEY
         sync: false
       - key: DATABASE_URL
         fromDatabase:
-          name: rafpad-db
+          name: kortex-db
           property: connectionString
 
   # Frontend web
   - type: web
-    name: rafpad-webapp
+    name: kortex-webapp
     env: static
     buildCommand: null
     staticPublishPath: ./static
 
 databases:
-  - name: rafpad-db
-    databaseName: rafpad
+  - name: kortex-db
+    databaseName: kortex
     plan: starter
 ```
 
@@ -225,7 +242,7 @@ web: gunicorn app:app
 2. **Baza danych PostgreSQL:**
    - Zmodyfikuj aplikację, aby używała `os.environ.get('DATABASE_URL')`
    - Użyj SQLAlchemy z URI z PostgreSQL
-   - Skrypt migracji danych z SQLite do PostgreSQL
+   - Przygotuj skrypty migracji danych
 
 3. **Domeny i HTTPS:**
    - Skonfiguruj domenę niestandardową w Render
@@ -239,23 +256,27 @@ web: gunicorn app:app
 
 ### Priorytet Wysoki (Miesiąc 1)
 - System uwierzytelniania
-- Migracja bazy danych
-- Podstawowa konfiguracja Render
-- Podstawowy system płatności
+- Podstawowy interfejs użytkownika
+- Zarządzanie zadaniami i notatkami
+- Podstawowa integracja AI
+- Konfiguracja hostingu
 
 ### Priorytet Średni (Miesiąc 2)
+- System płatności
 - Funkcje premium
-- Pełna konfiguracja hostingu
+- Rozbudowana integracja AI
 - Strona marketingowa
-- Początki aplikacji mobilnej
+- Implementacja powiadomień
 
-### Priorytet Niski (Miesiąc 3)
-- Dokończenie aplikacji mobilnej
+### Priorytet Niski (Miesiąc 3-4)
+- Aplikacja mobilna
 - Zaawansowane funkcje
 - Marketing i growth
+- Dodatkowe integracje
 
 ## Notatki i Uwagi
 
+- **Nazwa i Branding:** Kortex nawiązuje do kory mózgowej (cortex), co pasuje do aplikacji zwiększającej produktywność umysłową
 - **Koszt:** Szacowany miesięczny koszt hostingu na Render (starter): $7 za bazę + $7 za web service
-- **Czas:** Przy pracy zespołu 2-3 osób, cały projekt można zrealizować w 3 miesiące
-- **Monetyzacja:** Oczekiwany break-even po 6 miesiącach przy 50-100 użytkownikach płacących 
+- **Czas:** Przy pracy zespołu 2-3 osób, cały projekt można zrealizować w 3-4 miesiące
+- **Monetyzacja:** Oczekiwany break-even po 6 miesiącach przy 50-100 użytkownikach płacących
