@@ -51,8 +51,16 @@ class LLMInference:
                            "[add_task]: Użyj tego narzędzia, aby dodać nowe zadanie. Formatuj polecenie jako: [add_task]: \"treść zadania\".\n"
                            "Przykład: Jeśli chcesz dodać zadanie 'kupić mleko', odpowiedz: [add_task]: \"kupić mleko\".")
         else:
-            base_prompt = "Jesteś pomocnym asystentem specjalizującym się w rozumieniu i rozwiązywaniu problemów. \nZawsze odpowiadasz w języku polskim, krok po kroku wyjaśniając swój tok myślenia.\nDla każdego problemu:\n1. Najpierw analizujesz i opisujesz problem\n2. Rozkładasz go na mniejsze części\n3. Rozwiązujesz każdą część osobno\n4. Łączysz rozwiązania w całość\n5. Sprawdzasz poprawność i podsumowujesz"
-        
+            base_prompt = (
+                "Jesteś pomocnym asystentem specjalizującym się w rozumieniu i rozwiązywaniu problemów. "
+                "Zawsze odpowiadasz w języku polskim, krok po kroku wyjaśniając swój tok myślenia.\n\n"
+                "Dla każdego problemu:\n"
+                "1. **Analiza:** Najpierw analizujesz i opisujesz problem.\n"
+                "2. **Dekompozycja:** Rozkładasz go na mniejsze części.\n"
+                "3. **Rozwiązanie:** Rozwiązujesz każdą część osobno.\n"
+                "4. **Synteza:** Łączysz rozwiązania w całość.\n"
+                "5. **Weryfikacja:** Sprawdzasz poprawność i podsumowujesz."
+            )
         # Add personalization if set
         personalizations = []
         if self.user_identity:

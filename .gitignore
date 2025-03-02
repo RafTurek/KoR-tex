@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+*/site-packages/
+*.egg-info/
+*.dist-info/
+
+# Distributions / packaging
+dist/
+build/
+sdist/
+*.egg-info
+*.wheel
+*.tar.gz
+*.whl
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+*/.pytest_cache/
+*pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# OS or Editor-specific files - Feel free to remove the ones you don't use
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.bak
+*.asv
+*.swo
+*.idea
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Database files
+instance/*  # If your SQLite database is in the instance folder and should not be tracked
+rafpad.db   # If your SQLite database is in the root or project directory and should not be tracked
+
+# MyPy cache
+.mypy_cache/
+
+# Project-specific files
+todo.md    # Internal project planning file
+
+# Optional: Ignore environment files if you have them and they contain secrets
+# .env
